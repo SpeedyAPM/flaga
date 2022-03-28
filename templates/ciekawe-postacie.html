@@ -1,0 +1,12 @@
+<h1 style="text-align:center">Postacie</h1>
+
+{% for postac, opis, dlugos_opisu, ilosc_slow in opisy_postaci %}
+
+    <h1>{{postac}}</h1>
+    <p>{{opis}}</p>>
+    <p>{{dlugos_opisu}}</p>
+    <p>{{ilosc_slow}}</p>
+    <!-- <p>Ilość słów w każdym opisie, 
+        postacie posortowane od najkrótsze opisu</p> -->
+
+{%endfor%}
