@@ -1,84 +1,99 @@
-from flask import Flask, render_template
-import os
-import random
-import re
+from flask import Flask, render_template, redirect, url_for
+
+import flask_wtf
+from flask_wtf import FlaskForm
+from wtforms import StringField, BooleanField, SubmitField, SelectField
+from wtforms.validators import DataRequired
 
 from moje_programy.character_wiki import character
 from moje_programy.character_wiki import character2
 from moje_programy.open_poem import open_poem
+from moje_programy.open_data import open_data
 
-app=Flask(__name__)
+app = Flask(__name__)
+app.secret_key = ':)'
 
-if __name__=="__main__":
-	
-	app.run()
-
-how_many = 3
-
-
-@app.route('/ciekawe-postacie')
-def ciekawe_postacie():
-#	asa
-	lista_ciekawych_postaci = [
-		'Małysz',
-		'Kopernik',
-		'Maria Skłodowska',
-		'Kościuszko',
-		'Donald',
-		'Myszka Miki'
-	]
-	opisy_postaci  = []
-	for i in range(how_many):
-		postac = random.choice(lista_ciekawych_postaci)
-		indeks = lista_ciekawych_postaci.index(postac)
-		lista_ciekawych_postaci.pop(indeks)
-		opis_postaci = character(postac)
-		dlugos_opisu = len(opis_postaci)
-		ilosc_slow = len(re.findall(r'\w+', opis_postaci))
-		info = [postac, opis_postaci, dlugos_opisu , ilosc_slow ]
-		opisy_postaci.append(info)
-	opisy_postaci.sort( key = lambda x: x[3] , reverse=True  )#chooseWordsCount) #ilosc_slow:ilosc_slow[how_many]
-#	ciekawa_postac =  character( random.choice(lista_ciekawych_postaci))
-	return render_template("ciekawe-postacie.html" ,   opisy_postaci =opisy_postaci)
-
-@app.route('/brudnopis')
-def brudnopis():
-#	superhero = character("Ija Kiwa")
-	super_heroes = ['Bruce Lee' ,'Tygrysek' , 'Kłapouchy' , 'Kopernik']
-	chosen_hero = random.choice( super_heroes).encode('utf-8').decode()
-	kangur = character( chosen_hero)
-	return render_template("brudnopis.html", hero2 = super_heroes, hero3 = kangur, super_heroes=super_heroes)
-
+# Main
 
 @app.route('/')
 def index():
-	text2 =  open('xd.txt').read()
-	text= "siema tu łłłźźżżż  XDD" + text2 + "HAHA  " + text2
-	return render_template("index.html", text=text)
+    data_lines = open_data()
+    return render_template("index.html", text=data_lines)
 
-@app.route('/kubus_puchatek')
-def kubus_puchatek():
+@app.route('/form_a', methods=["GET", "POST"])
+def form_a():
+    form = X()
+    if form.validate_on_submit():
+        x = form.x.data
+        y = form.y.data
+        z = form.z.data
+        string = '{}\n{}\n{}\n\n'.format(x, y, z)
+        save_data(string)
+        return redirect( url_for('index'))
+    return render_template("form_a.html", form=form)
 
-	return render_template("kubus_puchatek.html")
+@app.route('/form_b', methods=["GET", "POST"])
+def form_b():
+    form = MusicForm()
+    if form.validate_on_submit():
+        x = form.x.data
+        z = form.z.data
+        if z == True:
+            string = '{}\n'.format(x)
+            save_data(string)
+            return redirect( url_for('index'))
+        else:
+            return render_template("form_b.html", form=form)
+    return render_template("form_b.html", form=form)
+
+@app.route('/form_result')
+def form_result():
+    return render_template("form_result.html")
 
 
+
+# Errors
+
+@app.errorhandler(404)
+def handle_404(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def handle_500(e):
+    return render_template('500.html'), 500
 
 @app.route('/xd')
 def xd():
 	return render_template("xd.html")
 
+
+# Form
+
+class X(FlaskForm):
+    x_options = [
+            ('a','a'),
+            ('b','b'),
+            ('c','c'),
+            ('d','d'),
+            ('e','e'),
+    ]
+    x = StringField('x', validators=[DataRequired()])
+    y = SelectField('y', choices=x_options)
+    z = BooleanField('z')
+    button = SubmitField('kk')
+
+class MusicForm(FlaskForm):
+    x = StringField('x', validators=[DataRequired()])
+    z = BooleanField('z')
+    button = SubmitField('kk')
+
+
+# Helpers
+
+# def save_data(string):
+#     with open('data/data.txt', "a") as f:
+#         f.write(string)
+
+
 if __name__=="__main__":
-	app.run()
-
-@app.route('/zpxd')
-def zpxd():
-	return "ZPXD"
-
-@app.route('/siema-cyryl')
-def siema_cyryl():
-	return render_template("Siema Cyryl.html")
-
-@app.route('/flaga-dla-ukrainy')
-def flaga_dla_ukrainy():
-	poem_lines = open_poem()
-	return render_template("flaga-dla-ukrainy.html", poem = poem_lines)
+    app.run(debug=True)
