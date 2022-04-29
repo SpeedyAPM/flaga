@@ -1,15 +1,19 @@
-<!DOCTYPE>
-<html>
-<head>
-</head>
+{% extends "base.html" %}
 
-<body>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <h1 style="text-align:center">{{text}}</h1>
-</body>
+{% block content %}
 
-</html>
+    <div>  
+        <br>
+        <br>
+        <br>
+        <h1 style="text-align:center">X</h1>
+        <h2> 
+
+            {% for poem_l in text %}
+            <p><a href="{{poem_l}}" </a>{{poem_l}}</p>
+            {% endfor %}
+        </h2>
+        <br>
+    </div>
+
+{% endblock %}
