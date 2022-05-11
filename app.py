@@ -151,28 +151,28 @@ def flagapl():
 
 def gather_heroes():
 	
-# 	heroes = [
-# # 		'Mikołaj Kopernik',
-# #		'Józef Haller',
-# #		'Władysław Sikorski',
-# 		'Witold Pilecki',
-# #		'Rotmistrz Pilecki',
-# 		'Maria Skłodowska-Curie',
-# #		'Maria Skłodowska',
-# 		'Fryderyk Chopin',
-# # 		'Kościuszko',
-#  		'Jan Henryk Dąbrowski',
-# # 		'Wojciech Korfanty',
-#   		'Adam Mickiewicz',
-
-# 	]
 	heroes = [
-		'Władysław Sikorski',
-		'Witold Pilecki'
-		'Maria Skłodowska-Curie',
+		'Mikołaj Kopernik',
 		'Józef Haller',
-		'Wojciech Korfanty',
+		'Władysław Sikorski',
+#		'Witold Pilecki',
+		'Rotmistrz Pilecki',
+#		'Maria Skłodowska-Curie',
+		'Maria Skłodowska',
+		'Fryderyk Chopin',
+ 		'Kościuszko',
+ 		'Jan Henryk Dąbrowski',
+ 		'Wojciech Korfanty',
+  		'Adam Mickiewicz',
+
 	]
+	# heroes = [
+	# 	'Władysław Sikorski',
+	# 	'Witold Pilecki',
+	# 	'Maria Skłodowska-Curie',
+	# 	'Józef Haller',
+	# 	'Wojciech Korfanty',
+	# ]
 
 	greetings = [
 		'pozdrawia',
@@ -190,7 +190,10 @@ def gather_heroes():
 
 			# Get some info and link.
 			some_info = wikipedia.page(hero)
-			info_intro = some_info.content.split('\n\n')[0]
+			info_intro = some_info.content.split('==')[0]
+			while info_intro[-1] is "\n":
+				info_intro=info_intro[:-2]
+			#### [0] - na końcu oznacza wziecie pierwszegi członu po zrobieniu splita(czyli wywalenie wszystkiego co jest po '\n\n')
 			url = '<a href="'+some_info.url+'">Poszukaj więcej info o: '+hero+"</a>"
 			
 			
