@@ -1,4 +1,4 @@
-
+import requests
 import os
 import wikipedia
 import random
@@ -24,7 +24,8 @@ def create_folders():
 def gather_heroes():
 
 	heroes = [
-		'Władysław Sikorski',
+		'Tadeusz Kościuszko',
+		#'Władysław Sikorski',
 		#  'Witold Pilecki',
 		# 'Maria Skłodowska-Curie',
 		# 'Józef Haller',
@@ -44,12 +45,15 @@ def gather_heroes():
 	saved_heroes = [h.split('.')[0] for h in saved_heroes]
 
 	for hero in heroes:
-		if hero not in saved_heroes:
+		hero_think(hero)
+		# podzielić bit/flaga zmiany poprzez # <h2><span 
+		# wykycie <h2><span id="O_
+		if True :#hero not in saved_heroes:
 
 			# Get some info and link.
 			some_info = wikipedia.page(hero)
-			print(some_info.content)
-			print(type(some_info))
+			# print(some_info.content)
+			# print(type(some_info))
 			info_intro = some_info.content.split('\n\n')[0] 
 			url = '<a href="'+some_info.url+'">Poszukaj więcej info o: '+hero+"</a>"
 			
@@ -84,6 +88,27 @@ def gather_heroes():
 		else:
 			greeting = random.choice(greetings)
 			print(hero, greeting)
+
+def hero_think(name):
+	url_name = name.replace(' ', '_')
+	url = 'https://pl.wikiquote.org/wiki/{}'.format(url_name)
+	hero_wikiquotes = requests.get(url)
+	print(hero_wikiquotes.text)
+	# with open('hero_think/'+name+".hero", "w+") as f:
+	# 	for line in hero_wikiquotes.text.split('\n'):
+	# 		if line.startswith('<h2>O'):
+	# 			continue
+			# if line.startswith('<ul><li>'):
+			# 	tree = html.fromstring(line)
+			# 	quote = tree.text_content().strip()
+			# 	if not quote.startswith('Opis') and not quote.startswith('Autor') and not quote.startswith('Źródło') and not quote.startswith('Zobacz te'):
+			# 		f.write(quote + '\n')
+			# 		q = Quotes(
+			# 			person_id=person_id, 
+			# 			quote=quote,
+			# 		)
+			# 		db.session.add(q)
+			# 		db.session.commit()
 
 
 create_folders()

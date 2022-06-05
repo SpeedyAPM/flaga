@@ -7,6 +7,7 @@ import os
 import wikipedia
 import requests
 from lxml import html
+from flask_sqlalchemy import SQLAlchemy
 
 # FLASK
 
@@ -23,45 +24,55 @@ from moje_programy.open_data import open_data
 
 
 app = Flask(__name__)
-app.secret_key = ':)'
+app.secret_key = ':)topsecrettop'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////{}/db/xdd.db'.format(os.getcwd())
+db = SQLAlchemy(app)
+
+
+
+@app.before_first_request
+def create_all():
+	db.create_all()
+	return "create"
 
 # Main
 
 @app.route('/')
 def index():
-	print(dir(app))
+	#print(dir(app))
 	data_lines = open_data()
 	return render_template("index.html", text=data_lines)
 
 @app.route('/form_a', methods=["GET", "POST"])
 def form_a():
-    form = X()
-    if form.validate_on_submit():
-        x = form.x.data
-        y = form.y.data
-        z = form.z.data
-        string = '{}\n{}\n{}\n\n'.format(x, y, z)
-        save_data(string)
-        return redirect( url_for('index'))
-    return render_template("form_a.html", form=form)
+	form = X()
+	if form.validate_on_submit():
+		x = form.x.data
+		y = form.y.data
+		z = form.z.data
+		string = '{}\n{}\n{}\n\n'.format(x, y, z)
+		save_data(string)
+		return redirect( url_for('index'))
+	return render_template("form_a.html", form=form)
 
 @app.route('/form_b', methods=["GET", "POST"])
 def form_b():
-    form = MusicForm()
-    if form.validate_on_submit():
-        x = form.x.data
-        z = form.z.data
-        if z == True:
-            string = '{}\n'.format(x)
-            save_data(string)
-            return redirect( url_for('index'))
-        else:
-            return render_template("form_b.html", form=form)
-    return render_template("form_b.html", form=form)
+	form = MusicForm()
+	if form.validate_on_submit():
+		x = form.x.data
+		z = form.z.data
+		if z == True:
+			string = '{}\n'.format(x)
+			save_data(string)
+			return redirect( url_for('index'))
+		else:
+			return render_template("form_b.html", form=form)
+	return render_template("form_b.html", form=form)
 
 @app.route('/form_result')
 def form_result():
-    return render_template("form_result.html")
+	return render_template("form_result.html")
 
 
 
@@ -69,11 +80,11 @@ def form_result():
 
 @app.errorhandler(404)
 def handle_404(e):
-    return render_template('404.html'), 404
+	return render_template('404.html'), 404
 
 @app.errorhandler(500)
 def handle_500(e):
-    return render_template('500.html'), 500
+	return render_template('500.html'), 500
 
 @app.route('/xd')
 def xd():
@@ -83,22 +94,22 @@ def xd():
 # Form
 
 class X(FlaskForm):
-    x_options = [
-            ('a','a'),
-            ('b','b'),
-            ('c','c'),
-            ('d','d'),
-            ('e','e'),
-    ]
-    x = StringField('x', validators=[DataRequired()])
-    y = SelectField('y', choices=x_options)
-    z = BooleanField('z')
-    button = SubmitField('kk')
+	x_options = [
+			('a','a'),
+			('b','b'),
+			('c','c'),
+			('d','d'),
+			('e','e'),
+	]
+	x = StringField('x', validators=[DataRequired()])
+	y = SelectField('y', choices=x_options)
+	z = BooleanField('z')
+	button = SubmitField('kk')
 
 class MusicForm(FlaskForm):
-    x = StringField('x', validators=[DataRequired()])
-    z = BooleanField('z')
-    button = SubmitField('kk')
+	x = StringField('x', validators=[DataRequired()])
+	z = BooleanField('z')
+	button = SubmitField('kk')
 
 
 # Helpers
@@ -110,10 +121,12 @@ class MusicForm(FlaskForm):
 
 app.config['UPLOAD_FOLDER'] = 'static'
 
-
 # Route
 
 def create_folders():
+	db_folder = os.getcwd() + '/' + 'db'
+	if not os.path.exists(db_folder):
+		os.mkdir('db')
 	try:
 		os.mkdir("static/hero_image")
 	except:
@@ -132,6 +145,22 @@ def create_folders():
 		pass
 	# skłodowska i pilecki do poprawy opis, a razem conajmniej 5 bohaterów
 
+# CLASS
+
+
+class Person(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String())
+	description = db.Column(db.String())
+	link = db.Column(db.String())
+	quotes = db.Column(db.String())
+
+class Quotes(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	person_id = db.Column(db.Integer)
+	quote = db.Column(db.String())
+
+
 
 @app.route('/flaga', methods=["GET", "POST"])
 def flagapl():
@@ -145,7 +174,8 @@ def flagapl():
 	
 	# Gather heroes.
 	heroes = gather_heroes()
-	random.shuffle(heroes)
+#	heroes = Person.query.all()
+#	random.shuffle(heroes)
 
 	return render_template("flaga.html", xd=xd, flaga=flaga, heroes=heroes)
 
@@ -155,15 +185,16 @@ def gather_heroes():
 		'Mikołaj Kopernik',
 		'Józef Haller',
 		'Władysław Sikorski',
-#		'Witold Pilecki',
-		'Rotmistrz Pilecki',
-#		'Maria Skłodowska-Curie',
-		'Maria Skłodowska',
+		'Witold Pilecki',
+#		'Rotmistrz Pilecki',
+		'Maria Skłodowska-Curie',
+#		'Maria Skłodowska',
 		'Fryderyk Chopin',
- 		'Kościuszko',
+ 		'Tadeusz Kościuszko',
  		'Jan Henryk Dąbrowski',
  		'Wojciech Korfanty',
   		'Adam Mickiewicz',
+		'Józef Piłsudski',
 
 	]
 	# heroes = [
@@ -183,10 +214,13 @@ def gather_heroes():
 
 	wikipedia.set_lang("pl")
 
+#
 	saved_heroes = os.listdir('saved_heroes')
 	saved_heroes = [h.split('.')[0] for h in saved_heroes]
 	for hero in heroes:
-		if hero not in saved_heroes:
+		if not Person.query.filter_by(name=hero).first():
+
+
 
 			# Get some info and link.
 			some_info = wikipedia.page(hero)
@@ -198,7 +232,7 @@ def gather_heroes():
 			
 			
 			# Get what hero thinks.
-			hero_think(hero)
+#			hero_think(hero)
 			
 			# Get & save images.
 			images = some_info.images
@@ -217,6 +251,17 @@ def gather_heroes():
 				f.write(info_intro + '\n')
 				f.write(url)
 
+			p = Person(
+				name=hero, 
+				description=info_intro,  
+				link=url, 
+			)
+			db.session.add(p)
+			db.session.commit()
+			db.session.flush()
+			person_id = p.id
+			hero_think(hero, person_id)
+
 		else:
 			greeting = random.choice(greetings)
 			print(hero, greeting)
@@ -232,7 +277,7 @@ def gather_heroes():
 		hero_quotes = open('hero_think/' + hero['name'][:-1] + ".hero").readlines()
 		hero['quote'] = random.choice(hero_quotes)
 		hero['description'] = '\n'.join(some_info[2:-1])
-		hero['description'] = bold(hero['description'])
+		# hero['description'] = bold(hero['description'])
 		hero['url'] = some_info[-1]
 		heroes.append(hero)
 	return heroes
@@ -280,7 +325,7 @@ def bold(hero_info):
 	right_desc = " ".join(right_desc)
 	return right_desc
 
-def hero_think(name):
+def hero_think(name, person_id):
 	url_name = name.replace(' ', '_')
 	url = 'https://pl.wikiquote.org/wiki/{}'.format(url_name)
 	hero_wikiquotes = requests.get(url)
@@ -291,16 +336,33 @@ def hero_think(name):
 			if line.startswith('<ul><li>'):
 				tree = html.fromstring(line)
 				quote = tree.text_content().strip()
-				if not quote.startswith('Opis') and not quote.startswith('Autor') and not quote.startswith('Źródło'):
+				# podzielić bit/flaga zmiany poprzez # <h2><span 
+				# wykycie <h2><span id="O_
+				if not quote.startswith('Opis') and not quote.startswith('Autor') and not quote.startswith('Źródło') and not quote.startswith('Zobacz te'):
 					f.write(quote + '\n')
+					q = Quotes(
+						person_id=person_id, 
+						quote=quote,
+					)
+					db.session.add(q)
+					db.session.commit()
 
+	# wojtekb@ip-172-31-29-234:/$ cp -r /home/wojtekb/zajecia_programowania_xd/3_tbd/028 /var/www/flaga
+	# wojtekb@ip-172-31-29-234:/$ cp -r /home/wojtekb/zajecia_programowania_xd/3_tbd /var/www/flaga/zp028
 
-    # wojtekb@ip-172-31-29-234:/$ cp -r /home/wojtekb/zajecia_programowania_xd/3_tbd/028 /var/www/flaga
-    # wojtekb@ip-172-31-29-234:/$ cp -r /home/wojtekb/zajecia_programowania_xd/3_tbd /var/www/flaga/zp028
+def test_setup():
+	for i in range(1, 10):
+		p = Person(
+			name="n_{}".format(i), 
+			description="n_{}".format(i),  
+			link="n_{}".format(i), 
+		)
+		db.session.add(p)
+		db.session.commit()
 
 
 # Folders
 
 
 if __name__=="__main__":
-    app.run(debug=True)
+	app.run(debug=True)
