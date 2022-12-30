@@ -2,6 +2,7 @@ import requests
 import os
 import wikipedia
 import random
+from lxml import html
 
 def create_folders():
 	try:
@@ -82,7 +83,7 @@ def gather_heroes():
 				# f.write(info_intro + '\n')
 				# f.write(url)
 
-    
+	
 
 
 		else:
@@ -94,15 +95,28 @@ def hero_think(name):
 	url = 'https://pl.wikiquote.org/wiki/{}'.format(url_name)
 	hero_wikiquotes = requests.get(url)
 	print(hero_wikiquotes.text)
-	# with open('hero_think/'+name+".hero", "w+") as f:
-	# 	for line in hero_wikiquotes.text.split('\n'):
-	# 		if line.startswith('<h2>O'):
-	# 			continue
-			# if line.startswith('<ul><li>'):
-			# 	tree = html.fromstring(line)
-			# 	quote = tree.text_content().strip()
-			# 	if not quote.startswith('Opis') and not quote.startswith('Autor') and not quote.startswith('Źródło') and not quote.startswith('Zobacz te'):
-			# 		f.write(quote + '\n')
+	cudze_cytaty = False
+	#with open('hero_think/'+name+".hero", "w+") as f:
+	with open('dtxt/'+name+"cyt.hero", "w+") as f:
+		for line in hero_wikiquotes.text.split('\n'):
+		# podzielić bit/flaga zmiany poprzez # <h2><span 
+		# wykycie <h2><span id="O_
+			if line.startswith('<h2>O'):
+				continue
+			if line.startswith('<h2><span id="O_'):
+				cudze_cytaty = True
+				continue
+			
+			if ((cudze_cytaty == True) and (line.startswith('<h2><span'))):
+				cudze_cytaty = False
+			if cudze_cytaty == True :
+				continue
+			
+			if line.startswith('<ul><li>'):
+				tree = html.fromstring(line)
+				quote = tree.text_content().strip()
+				if not quote.startswith('Opis') and not quote.startswith('Autor') and not quote.startswith('Źródło') and not quote.startswith('Zobacz te'):
+					f.write(quote + '\n')
 			# 		q = Quotes(
 			# 			person_id=person_id, 
 			# 			quote=quote,

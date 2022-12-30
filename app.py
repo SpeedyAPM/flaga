@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, send_from_directory
 
 # Libraries
 
@@ -23,7 +23,7 @@ from moje_programy.open_data import open_data
 
 
 
-app = Flask(__name__)
+app = Flask(__name__,static_folder='static')
 app.secret_key = ':)topsecrettop'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////{}/db/xdd.db'.format(os.getcwd())
@@ -86,6 +86,11 @@ def handle_404(e):
 def handle_500(e):
 	return render_template('500.html'), 500
 
+
+@app.route('/oesk') # STUDIA INFORMATYCZNE Ocena Efektywności Systemów Komputerowych
+def oesk():
+	return send_from_directory(directory='data', filename='Klasyfikatory_Pswkwzrl.pdf', )
+
 @app.route('/xd')
 def xd():
 	return render_template("xd.html")
@@ -114,9 +119,9 @@ class MusicForm(FlaskForm):
 
 # Helpers
 
-# def save_data(string):
-#     with open('data/data.txt', "a") as f:
-#         f.write(string)
+def save_data(string):
+    with open('data/data.txt', "a") as f:
+        f.write(string)
 
 
 app.config['UPLOAD_FOLDER'] = 'static'
@@ -170,11 +175,11 @@ def flagapl():
 	xd = random.choice(range(22))
 	if len(os.listdir('static')) < 10:
 		xd = 11
-	flaga = os.path.join(app.config['UPLOAD_FOLDER'], 'Polska_Flaga__{}'.format(xd))
+	flaga = os.path.join(app.config['UPLOAD_FOLDER'], 'flag_image/', 'Polska_Flaga__{}.jpg'.format(xd))
 	
 	# Gather heroes.
 	heroes = gather_heroes()
-#	heroes = Person.query.all()
+	# heroes = Person.query.all()
 #	random.shuffle(heroes)
 
 	return render_template("flaga.html", xd=xd, flaga=flaga, heroes=heroes)
@@ -260,7 +265,7 @@ def gather_heroes():
 			db.session.commit()
 			db.session.flush()
 			person_id = p.id
-			hero_think(hero, person_id)
+			hero_think(hero) #, person_id)
 
 		else:
 			greeting = random.choice(greetings)
@@ -325,27 +330,36 @@ def bold(hero_info):
 	right_desc = " ".join(right_desc)
 	return right_desc
 
-def hero_think(name, person_id):
+def hero_think(name):
 	url_name = name.replace(' ', '_')
 	url = 'https://pl.wikiquote.org/wiki/{}'.format(url_name)
 	hero_wikiquotes = requests.get(url)
+	cudze_cytaty = False
 	with open('hero_think/'+name+".hero", "w+") as f:
+	#with open('dtxt/'+name+"cyt.hero", "w+") as f:
 		for line in hero_wikiquotes.text.split('\n'):
 			if line.startswith('<h2>O'):
 				continue
+			if line.startswith('<h2><span id="O_'):
+				cudze_cytaty = True
+				continue
+			
+			if ((cudze_cytaty == True) and (line.startswith('<h2><span'))):
+				cudze_cytaty = False
+			if cudze_cytaty == True :
+				continue
+			
 			if line.startswith('<ul><li>'):
 				tree = html.fromstring(line)
 				quote = tree.text_content().strip()
-				# podzielić bit/flaga zmiany poprzez # <h2><span 
-				# wykycie <h2><span id="O_
 				if not quote.startswith('Opis') and not quote.startswith('Autor') and not quote.startswith('Źródło') and not quote.startswith('Zobacz te'):
 					f.write(quote + '\n')
-					q = Quotes(
-						person_id=person_id, 
-						quote=quote,
-					)
-					db.session.add(q)
-					db.session.commit()
+					# q = Quotes(
+					# 	person_id=person_id, 
+					# 	quote=quote,
+					# )
+					# db.session.add(q)
+					# db.session.commit()
 
 	# wojtekb@ip-172-31-29-234:/$ cp -r /home/wojtekb/zajecia_programowania_xd/3_tbd/028 /var/www/flaga
 	# wojtekb@ip-172-31-29-234:/$ cp -r /home/wojtekb/zajecia_programowania_xd/3_tbd /var/www/flaga/zp028
@@ -363,6 +377,11 @@ def test_setup():
 
 # Folders
 
+flask_config = {
+    "DEBUG": False,    # Wyłącza debugowanie => automatyczny reload zmiany strony
+    "TESTING": False,
+    "TEMPLATES_AUTO_RELOAD": True,
+}
 
 if __name__=="__main__":
-	app.run(debug=True)
+	 app.run(flask_config) # app.run(debug=False) #

@@ -1,0 +1,14 @@
+total 160
+drwxr-xr-x  2 root     www-data  4096 May 28 13:00 ./
+drwxrwxr-x 17 www-data www-data  4096 Jun 12 16:00 ../
+-rw-r--r--  1 root     www-data 11921 May 28 13:00 Adam Mickiewicz.hero
+-rw-r--r--  1 root     www-data 15417 May 28 13:00 Fryderyk Chopin.hero
+-rw-r--r--  1 root     www-data  1473 May 28 13:00 Jan Henryk Dąbrowski.hero
+-rw-r--r--  1 root     www-data  2788 May 28 13:00 Józef Haller.hero
+-rw-r--r--  1 root     www-data 63065 May 28 13:00 Józef Piłsudski.hero
+-rw-r--r--  1 root     www-data  7808 May 28 13:00 Maria Skłodowska-Curie.hero
+-rw-r--r--  1 root     www-data  2823 May 28 12:59 Mikołaj Kopernik.hero
+-rw-r--r--  1 root     www-data 14743 May 28 13:00 Tadeusz Kościuszko.hero
+-rw-r--r--  1 root     www-data  3390 May 28 13:00 Witold Pilecki.hero
+-rw-r--r--  1 root     www-data  6331 May 28 13:00 Wojciech Korfanty.hero
+-rw-r--r--  1 root     www-data 10409 May 28 13:00 Władysław Sikorski.hero
